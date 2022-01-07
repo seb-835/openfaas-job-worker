@@ -1,0 +1,6 @@
+asyncio-nats-streaming
+#asyncio-nats-client==0.9.4
+asyncio-nats-client==0.10.0
+requests
+packaging
+pyinstaller==3.6

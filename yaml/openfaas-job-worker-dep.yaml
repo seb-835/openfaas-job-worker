@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openfaas-job-worker
+  namespace: openfaas
+  labels:
+    app: openfaas-job-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openfaas-job-worker
+  template:
+    metadata:
+      labels:
+        app: openfaas-job-worker
+    spec:
+      serviceAccountName: openfaas-job-worker-controller
+      containers:
+      - name:  openfaas-queue-worker
+        image: seb835/openfaas-job-worker:latest
+        imagePullPolicy: IfNotPresent 
+        env:
+        # Token to access the k8s API server (if not set reads the content of '/var/run/secrets/kubernetes.io/serviceaccount/token')  
+        # - name: KUBE_TOKEN
+        #   value: "xxx"
+        - name: KUBERNETES_SERVICE_HOST
+          value: "kubernetes.default"
+        - name: KUBERNETES_SERVICE_PORT
+          value: "443"
+        - name: NATS_ADDRESS
+          value: "nats.openfaas"
+        - name: NATS_PORT
+          value: "4222"
+        - name: JOB_TTL_SECONDS_AFTER_FINISHED
+          value: "60"
+        - name: JOB_BACKOFF_LIMIT
+          value: "3"
+        - name: NATS_QUEUE
+          value: "job-faas-request"
+        # Adjust resources to suit needs of deployment
+        resources:
+          requests:
+            memory: 250Mi
+          limits:
+            memory: 250Mi
