@@ -57,6 +57,10 @@ class KubernetesClient:
         if not self.job_backoff_limit:
             self.job_backoff_limit = 6
 
+         self.registry_url= utils.get_environment_variable('REGISTRY_URL')
+         if not self.registry_url:
+             self.registry_url = ""
+
     def _gen_auth_header(self):
         return {'Authorization': 'Bearer ' + self.token}
 
@@ -178,7 +182,7 @@ class KubernetesClient:
             job['spec']['template']['spec']['containers'] = [
                 {
                 'name': 'callback',
-                'image': 'seb835/wget',
+                'image': self.registry_url+'seb835/wget',
                 'command': ['/bin/sh'],
                 'args': ['-c', 'wget '+wget_headers+'--post-file=/std/out --no-check-certificate -qO- '+callback_url],
                 'volumeMounts': [ volumeMount_extra ] 
