@@ -155,7 +155,7 @@ class KubernetesClient:
                                 'name': container_info['name'],
                                 'image': container_info['image'],
                                 'command': ['/bin/sh'],
-                                'args': ['-c', 'echo $EVENT | $fprocess | tee /std/out'],
+                                'args': ['-c', 'echo $EVENT | tee /std/in | $fprocess | tee /std/out'],
                                 'env': env,
                                 'resources': resources,
                                 'volumeMounts': volumeMounts 
@@ -171,8 +171,10 @@ class KubernetesClient:
         if callback_url is not None :
             wget_headers=""
             for k,v in headers.items():
-                wget_headers += '--header="'+k+': '+v[0]+'" '
+                if k.startswith("X-") : 
+                    wget_headers += '--header="'+k+': '+v[0]+'" ' 
             logging.info("HEADERS : {0}".format(wget_headers))
+
             job['spec']['template']['spec']['containers'] = [
                 {
                 'name': 'callback',
